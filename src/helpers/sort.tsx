@@ -8,7 +8,6 @@ const sortMap = {
 }
 
 export const sort = (rows: Row[], order: Order): Row[] => {
-    if (!order) return rows;
     const rowsCopy = [...rows];
     return rowsCopy.sort(sortMap[order as string])
 }

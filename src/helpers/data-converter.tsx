@@ -1,4 +1,4 @@
-import {Account, Image, Payment, User} from "../../types";
+import {Account, Image, Payment, User} from "../types";
 import {Row} from "../components";
 
 export const dataConverter = (images: Image[], users: User[], accounts: Account[]): Row[] => {

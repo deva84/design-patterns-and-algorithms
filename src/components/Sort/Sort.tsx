@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import {FC} from 'react';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -6,15 +6,17 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
 import styles from './Sort.module.scss';
+import {Handler, HandlerData} from "../../types";
+import {Order} from "../../helpers/sort";
 
 interface SortProps {
     store?: {};
-    updateStore?: (val) => void;
+    updateStore?: (val: HandlerData<Order>) => void;
 }
 
 export const Sort: FC<SortProps> = props => {
     const handleChange = value => {
-        props.updateStore(value);
+        props.updateStore({data: value, handler: Handler.SORT});
     };
 
     return (

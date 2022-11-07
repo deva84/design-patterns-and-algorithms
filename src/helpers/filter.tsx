@@ -11,9 +11,6 @@ const callbackMap = {
 }
 
 export const filter = (rows: Row[], filterOptions: FilterOption[]): Row[] => {
-    if (!filterOptions.length) {
-        return rows;
-    }
     const rowsCopy = [...rows];
     const callbacks = [];
     filterOptions.forEach(option => {
