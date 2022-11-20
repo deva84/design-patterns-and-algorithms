@@ -1,0 +1,6 @@
+.cache/
+.idea/
+build/*
+!build/index.html
+node_modules/
+*.log
