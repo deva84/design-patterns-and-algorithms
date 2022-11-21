@@ -1,13 +1,13 @@
-import { AbstractShipment, ShipmentData } from './client.models';
-import { Shipment } from './shipment';
-import { simpleShipmentMockOne } from './client.mocks';
+import { AbstractShipment, ShipmentData } from '../shipment/shipment.models';
+import { Shipment } from '../shipment/shipment';
+import { shipmentMocks } from '../shipment/shipment.mocks';
 
 export class Client {
   private static client: Client;
-  private shipments: AbstractShipment[];
+  private static shipments: AbstractShipment[];
 
   private constructor() {
-    this.shipments = [];
+    Client.shipments = [];
   }
 
   public static getInstance(): Client {
@@ -19,15 +19,15 @@ export class Client {
   }
 
   createShipment(data: ShipmentData): AbstractShipment {
-    const shipment = new Shipment(data).getInstance();
+    const shipment = new Shipment(data);
     const shipmentMessage = shipment.ship();
     this.publishMessage(shipmentMessage);
 
-    this.shipments = [...this.shipments, shipment];
+    Client.shipments = [...Client.shipments, shipment];
     return shipment;
   }
 
-  getShipments(): AbstractShipment[] {
+  static getShipments(): AbstractShipment[] {
     return this.shipments;
   }
 
@@ -41,7 +41,8 @@ export class Client {
   listenToEvents(): void {
     const shipmentBtnEl = document.getElementById('shipment');
     shipmentBtnEl.addEventListener('click', () => {
-      this.createShipment(simpleShipmentMockOne);
+      const randomShipment = shipmentMocks[Math.floor(Math.random() * shipmentMocks.length)]
+      this.createShipment(randomShipment);
     });
   }
 }
