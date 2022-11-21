@@ -7,9 +7,9 @@ import { PacificParcelShipper } from '../shipper/pacific-parcel-shipper';
 
 export class Shipment implements AbstractShipment {
   private readonly _shipmentData: ShipmentData;
-  private shipmentData: ShipmentData;
+  protected shipmentData: ShipmentData;
   private counter: Counter;
-  private shipper: Shipper;
+  protected shipper: Shipper;
 
   constructor(data: ShipmentData) {
     this._shipmentData = data;
@@ -17,6 +17,16 @@ export class Shipment implements AbstractShipment {
     this.counter = Counter.getInstance();
     this.shipper = this.getShipperInstance();
     this.shipmentData.shipmentID = this.getShipmentId();
+  }
+
+  getInstance(): Shipment {
+    if (this.shipmentData.weight <= 15) {
+      return new Letter(this.shipmentData);
+    }
+    if (this.shipmentData.weight <= 160) {
+      return new StandardPackage(this.shipmentData);
+    }
+    return new OverweightPackage(this.shipmentData);
   }
 
   getShipmentId(): number {
@@ -38,7 +48,7 @@ export class Shipment implements AbstractShipment {
     return this.counter.register();
   }
 
-  private getCost(): string {
+  protected getCost(): string {
     const deliveryCost = this.shipper.getCost(this._shipmentData.weight);
     return `${deliveryCost.toFixed(2)} USD`
   }
@@ -67,3 +77,39 @@ export class Shipment implements AbstractShipment {
     return PacificParcelShipper.getInstance();
   }
 }
+
+// children classes are placed here in order to avoid circular dependency
+export class Letter extends Shipment {
+  constructor(data: ShipmentData) {
+    super(data);
+  }
+
+  protected getCost(): string {
+    const deliveryCost = this.shipper.getSmallPackCost(this.shipmentData.weight);
+    return `${deliveryCost.toFixed(2)} USD`
+  }
+}
+
+export class StandardPackage extends Shipment {
+  constructor(data: ShipmentData) {
+    super(data);
+  }
+
+  protected getCost(): string {
+    const deliveryCost = this.shipper.getMediumPackCost(this.shipmentData.weight);
+    return `${deliveryCost.toFixed(2)} USD`
+  }
+}
+
+export class OverweightPackage extends Shipment{
+  constructor(data: ShipmentData) {
+    super(data);
+  }
+
+  protected getCost(): string {
+    const deliveryCost = this.shipper.getLargePackCost(this.shipmentData.weight);
+    return `${deliveryCost.toFixed(2)} USD`
+  }
+}
+
+

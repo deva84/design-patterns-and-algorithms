@@ -19,7 +19,7 @@ export class Client {
   }
 
   createShipment(data: ShipmentData): AbstractShipment {
-    const shipment = new Shipment(data);
+    const shipment = new Shipment(data).getInstance();
     const shipmentMessage = shipment.ship();
     this.publishMessage(shipmentMessage);
 

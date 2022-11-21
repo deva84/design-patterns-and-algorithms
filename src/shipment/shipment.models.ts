@@ -8,6 +8,7 @@ export interface ShipmentData {
 }
 
 export abstract class AbstractShipment {
+  abstract getInstance(): AbstractShipment;
   abstract getShipmentId(): number;
   abstract ship(): string;
 }
