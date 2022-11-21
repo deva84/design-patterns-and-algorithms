@@ -1,3 +1,7 @@
 import './style.less';
+import { Client } from './client/client';
 
-console.log('Hello World!')
+const client = Client.getInstance();
+client.listenToEvents();
+
+console.log('Hello World!');
