@@ -7,6 +7,11 @@ export const shipmentMocks: ShipmentData[] = [
     toAddress: '34 Bd. Eroilor, Bucharest',
     fromZipCode: '1017',
     toZipCode: '41014',
+    mark: {
+      fragile: true,
+      doNotLeave: true,
+      receiptRequested: true
+    }
   },
   {
     weight: 256,
@@ -14,6 +19,11 @@ export const shipmentMocks: ShipmentData[] = [
     toAddress: '45 Str. Szebenok, Prague',
     fromZipCode: '72009',
     toZipCode: '21340',
+    mark: {
+      fragile: false,
+      doNotLeave: false,
+      receiptRequested: true
+    }
   }, {
     weight: 1000,
     fromAddress: '17 Str. Oysho, Tokio',
@@ -26,6 +36,11 @@ export const shipmentMocks: ShipmentData[] = [
     toAddress: '12 Str. Garden, Craiova',
     fromZipCode: '45678',
     toZipCode: '23456',
+    mark: {
+      fragile: false,
+      doNotLeave: true,
+      receiptRequested: false
+    }
   },
   {
     weight: 120,

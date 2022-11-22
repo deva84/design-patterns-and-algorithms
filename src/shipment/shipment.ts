@@ -1,9 +1,10 @@
 import { AbstractShipment, ShipmentData } from './shipment.models';
-import {Counter} from "../persistence-layer/counter";
+import { Counter } from '../persistence-layer/counter';
 import { Shipper } from '../shipper/shipper.models';
 import { AirEastShipper } from '../shipper/air-east-shipper';
 import { ChicagoSprintShipper } from '../shipper/chicago-sprint-shipper';
 import { PacificParcelShipper } from '../shipper/pacific-parcel-shipper';
+import { ShipmentDecorator } from './shipment-decorator';
 
 export class Shipment implements AbstractShipment {
   private readonly _shipmentData: ShipmentData;
@@ -13,53 +14,64 @@ export class Shipment implements AbstractShipment {
 
   constructor(data: ShipmentData) {
     this._shipmentData = data;
-    this.shipmentData = {...this._shipmentData};
+    this.shipmentData = { ...this._shipmentData };
     this.counter = Counter.getInstance();
     this.shipper = this.getShipperInstance();
-    this.shipmentData.shipmentID = this.getShipmentId();
+    this.shipmentData.shipmentID = this.getShipmentId(this._shipmentData.shipmentID);
   }
 
-  getInstance(): Shipment {
-    if (this.shipmentData.weight <= 15) {
-      return new Letter(this.shipmentData);
+  static getInstance(shipmentData: ShipmentData): AbstractShipment {
+    const instance = this.getTypedShipmentInstance(shipmentData);
+
+    if (instance.getShipmentData().mark) {
+      return new ShipmentDecorator(instance);
     }
-    if (this.shipmentData.weight <= 160) {
-      return new StandardPackage(this.shipmentData);
-    }
-    return new OverweightPackage(this.shipmentData);
+    return instance;
   }
 
-  getShipmentId(): number {
-    if (this._shipmentData.shipmentID) {
-      return this._shipmentData.shipmentID;
+  static getTypedShipmentInstance(shipmentData: ShipmentData): AbstractShipment {
+    if (shipmentData.weight <= 15) {
+      return new Letter(shipmentData);
+    }
+    if (shipmentData.weight <= 160) {
+      return new StandardPackage(shipmentData);
+    }
+    return new OverweightPackage(shipmentData);
+  }
+
+  getShipmentData(): ShipmentData {
+    return this.shipmentData;
+  }
+
+  getShipmentId(id?: number): number {
+    if (id) {
+      return id;
     }
     return this.registerShipmentId();
   }
 
   ship(): string {
-     const htmlMessage = this.getHTMLMessage();
-     const humanFriendlyMessage = htmlMessage.replace(/<[^>]*>?/gm, '')
+    const id = this.shipmentData.shipmentID;
+    const fromAddress = this.shipmentData.fromAddress;
+    const fromZip = this.shipmentData.fromZipCode;
+    const toAddress = this.shipmentData.toAddress;
+    const toZip = this.shipmentData.toZipCode;
+    const cost = this.getCost();
 
-     console.log(humanFriendlyMessage);
-     return htmlMessage;
+    const message = `Shipment with the ID ${id} will be picked up from ${fromAddress} ${fromZip} 
+    and shipped to ${toAddress} ${toZip} Cost = ${cost}`;
+
+    console.log(message);
+    return message;
   }
 
   private registerShipmentId(): number {
     return this.counter.register();
   }
 
-  protected getCost(): string {
+  getCost(): number {
     const deliveryCost = this.shipper.getCost(this._shipmentData.weight);
-    return `${deliveryCost.toFixed(2)} USD`
-  }
-
-  private getHTMLMessage(): string {
-    return `<div> Shipment ID: ${this.shipmentData.shipmentID} 
-    <br>From: <span class="from-address">${this.shipmentData.fromAddress}, 
-    ${this.shipmentData.fromZipCode ? this.shipmentData.fromZipCode : ''}</span> 
-    <br>To: <span class="to-address">${this.shipmentData.toAddress}, ${this.shipmentData.toZipCode}</span>
-    <br>Shipper: <span class="shipper">${this.shipper.getTitle()}</span> 
-    <br>Cost: <span class="cost">${this.getCost()}</span></div>`;
+    return parseFloat(deliveryCost.toFixed(2));
   }
 
   private getShipperInstance(): Shipper {
@@ -84,9 +96,9 @@ export class Letter extends Shipment {
     super(data);
   }
 
-  protected getCost(): string {
+  getCost(): number {
     const deliveryCost = this.shipper.getSmallPackCost(this.shipmentData.weight);
-    return `${deliveryCost.toFixed(2)} USD`
+    return parseFloat(deliveryCost.toFixed(2));
   }
 }
 
@@ -95,21 +107,20 @@ export class StandardPackage extends Shipment {
     super(data);
   }
 
-  protected getCost(): string {
+  getCost(): number {
     const deliveryCost = this.shipper.getMediumPackCost(this.shipmentData.weight);
-    return `${deliveryCost.toFixed(2)} USD`
+    return parseFloat(deliveryCost.toFixed(2));
   }
 }
 
-export class OverweightPackage extends Shipment{
+export class OverweightPackage extends Shipment {
   constructor(data: ShipmentData) {
     super(data);
   }
 
-  protected getCost(): string {
+  getCost(): number {
     const deliveryCost = this.shipper.getLargePackCost(this.shipmentData.weight);
-    return `${deliveryCost.toFixed(2)} USD`
+    return parseFloat(deliveryCost.toFixed(2));
   }
 }
-
 
